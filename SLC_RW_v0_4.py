@@ -973,20 +973,13 @@ def HandleCLI(argv):
         elif opt in ("-l", "--length"):
             _length = int(arg)
         elif opt in ("-v", "--value"):
-            _value = int(arg)	
-##
-##    _read = False
- ##   _write = True
-##    _address = "N13:5"#F8:4"#B3:8/1"#"N13:5"#"F8:4"#"N7:8"#"N13:5"#
-##    _value = 61
-##    _debug = False
-##    _verbose = False#False
-##           
+            if (_address[0] == 'f' or _address[0] == 'F'):
+                _value = float(arg) 
+            else:
+                _value = int(arg)
     if ((_read or _write) and _address is None):
         print ("!Address Required!")
-  #      CLIUsage()
-          
-	
+
 def CLIUsage():
     print (sys.argv[0])
     print ("\nOptions:")
@@ -1018,11 +1011,6 @@ def writeToSLC(IP):
     global _length
  
     _length = 1
-    _read = False
-    _write = True
-    _verbose = False
-    _debug = True
-    _value = int(value)
     _timeoutCTR = 0
 
     client = CIPClient()
@@ -1060,10 +1048,6 @@ def readFromSLC(IP):
     global _length
 
     _length = 1
-    _read = True
-    _write = False
-    _verbose = False
-    _debug = False
     _timeoutCTR = 0
 
     client = CIPClient()
@@ -1075,7 +1059,6 @@ def readFromSLC(IP):
         print('...reading from ' + _address)
     asyncore.loop()
     if (_read):
-        #if (_debug or _verbose):
         print(str(client.value[0]))
         return(str(client.value[0]))
         time.sleep(.11)
@@ -1085,24 +1068,9 @@ def readFromSLC(IP):
 
 
 if __name__ == '__main__':
-#    writeToSLC("10.1.1.139","N13:5",63)
-#if (False):
     HandleCLI(sys.argv[1:])
-#    client = CIPClient()
-#    client.elements = [1,1,0,0,0,0,0,0,0,0,0,0,0,4,0,5,0,0,0,0,0,0,0,0,0,0,0]
-#    client.write_buffer = bytearray(client.elements)
-#    client.init_connect("10.1.1.139",2222)
-#    time.sleep(.11)
-#    if (_verbose and _read):
-#        print('...reading from ' + _address)
-#    elif (_verbose and _write):
-#        print('...writing \"' + str(_value) + '\" to ' + _address)
-
-#    asyncore.loop()
 
     if (_read):
-        #if (_debug or _verbose):    
-#        print(str(client.value))#print(str(client.value[1][0]))
         time.sleep(.11)
         readFromSLC("10.1.1.139")
         if (_store):
