@@ -1,0 +1,33 @@
+
+.tempEntry {
+	background-color:grey;
+	margin:auto;
+	width:360px;
+}
+
+.tempEntry form {
+	padding-top:10px;
+	margin:auto;
+	width:280px;
+}
+
+.InputformTitle {
+	clear:both;
+	font-size:small;
+	margin:0px;
+}
+
+.InputformUnits {
+	position:relative;
+	clear:none;
+	top:-18px;
+	left:160px;
+	font-size:small;
+}
+.inputField {
+	width:200px;
+}
+
+.inputButton {
+	width:60px;
+}

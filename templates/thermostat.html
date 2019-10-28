@@ -1,0 +1,41 @@
+	<html>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <head>
+	<title> Set Thermostat </title>
+    </head>
+    <body>
+		<div>
+	    {{temp}}
+	    <form action="/thermostat" method="post">
+                <div class="tempEntry">
+                        <h6 class="InputformTitle" >Current</h6>
+                        <div>
+                        <input class="inputField" type="text" value="{{tempSP0}}" name="currentSP" />
+                        <input class="inputButton" name="tempSP0_submit" type="submit" value="Set" />
+                        <span class="InputformUnits">degF</span>
+                        </div>
+                </div>
+		<div class="tempEntry">
+			<h6 class="InputformTitle" >Workday</h6>
+			<div>
+			<input class="inputField" type="text" value="{{tempSP1}}" name="awaySP" />
+			<input class="inputButton" name="tempSP1_submit" type="submit" value="Set" />
+			<span class="InputformUnits">degF</span>	
+			</div>
+		</div>
+		<div class="tempEntry">
+			<h6 class="InputformTitle">At Home</h6>
+	                <input class="inputField" type="text" value="{{tempSP2}}" name="homeSP" />
+        	        <input class="inputButton" name="tempSP2_submit" type="submit" value="Set" />
+                	<span class="InputformUnits">degF</span>
+		</div>
+		<div class="tempEntry">	
+			<h6 class="InputformTitle">Vacation</h6	>
+	                <input class="inputField" type="text" value="{{tempSP3}}" name="vacationSP" />
+        	        <input class="inputButton" name="tempSP3_submit" type="submit" value="Set" />
+                	<span class="InputformUnits">degF</span>
+		</div>
+	    </form>
+	</div>
+    </body>
+</html>
