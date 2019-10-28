@@ -1074,7 +1074,7 @@ if __name__ == '__main__':
         time.sleep(.11)
         readFromSLC("10.1.1.139")
         if (_store):
-            HistorianConnector = MySQLClient('localhost',3306,'Thermostat','soho','792300Js')
+            HistorianConnector = MySQLClient('localhost',3306,'Thermostat','soho','')
             HistorianConnector.connect()
             table_name="`HouseTemp_" + time.strftime("%Y_%B") + "`"
             table_string = table_name + "( `primary_key` mediumint(8) NOT NULL AUTO_INCREMENT, `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP, `ActualTemp` float NOT NULL,`CurrentSP` float NOT NULL, `units` varchar(20) NOT NULL, PRIMARY KEY (`primary_key`)) ENGINE=InnoDB DEFAULT CHARSET=utf8"
