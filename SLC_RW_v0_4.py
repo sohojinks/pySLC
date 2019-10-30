@@ -1,4 +1,4 @@
-import asyncore, socket, random, time, re, string, struct, array, platform, mysql.connector, sys, getopt, logging
+import asyncore, socket, random, time, re, string, struct, array, platform, mysql.connector, sys, getopt, logging, math
 from db_cnx import MySQLClient
 
 _verbose = False
@@ -47,25 +47,25 @@ class ParsedDataAddress():
         if (match != None):
             results = self.RE1_address_pattern.search(self.raw_string)
             if (_debug):
-                print (" ParsedDataAddress::parse_address() match results = ",results)
+                print (" ParsedDataAddress::parse_address() match RE1 results = ",results)
         else:
             match = self.RE2_address_pattern.match(self.raw_string)
             if (match != None):
                 results = self.RE2_address_pattern.search(self.raw_string)
                 if (_debug):
-                    print (" ParsedDataAddress::parse_address() match results = ",results)
+                    print (" ParsedDataAddress::parse_address() match RE2 results = ",results)
             else:
                 match = self.RE3_address_pattern.match(self.raw_string)
                 if (match != None):
                     results = self.RE3_address_pattern.search(self.raw_string)
                     if (_debug):
-                        print (" ParsedDataAddress::parse_address() match results = ",results)
+                        print (" ParsedDataAddress::parse_address() match R3 results = ",results)
                 else:
                     match = self.RE4_address_pattern.match(self.raw_string)
                     if (match != None):
                         results = self.RE4_address_pattern.search(self.raw_string)
                         if (_debug):
-                            print (" ParsedDataAddress::parse_address() match results = ",results)
+                            print (" ParsedDataAddress::parse_address() match R4 results = ",results)
                     else:
                         if (_debug):
                             print (" ParsedDataAddress::parse_address() match results = None")
@@ -91,8 +91,8 @@ class ParsedDataAddress():
             try:
                 self.ElementNumber =  results.group('ElementNumber')
             except:
-                self.ElementNumber = self.BitNumber >> 4
-                self.BitNumber = self.BitNumber % 16
+                self.ElementNumber = (self.BitNumber) >> 4
+                self.BitNumber = (self.BitNumber) % 16
             try:
                 self.SubElement = results.group('SubElement')
                 if (self.SubElement == 'PRE'):
@@ -394,8 +394,8 @@ class CIPClient(asyncore.dispatcher_with_send):
             self.ArrayElements = length - 1
             if (self.ArrayElements < 0):
                 self.ArrayElements = 0
-            if (self.parsedResult.BitNumber != None and self.parsedResult.BitNumber < 16):
-                self.ArrayElements = math.floor(self.numberOfElements / 16)
+            if (self.parsedResult.BitNumber != None and int(self.parsedResult.BitNumber) < 16):
+                self.ArrayElements = math.floor(length / 16)
                 if (self.ArrayElements % 16 > 0):
                     data[0] = 1 + data[0]
             
@@ -501,6 +501,8 @@ class CIPClient(asyncore.dispatcher_with_send):
                     else:
                         j = i * 2
                     result[i] = int(data[j])
+        elif (self.parsedResult.FileType == 0x85):
+            print ("book", dataByteArray)
         else:
             result = 0
             print ("Exception in ExtractRegister()")
@@ -509,18 +511,18 @@ class CIPClient(asyncore.dispatcher_with_send):
         #'* If the number of words to read is not specified, then return a single value
         #'******************************************************************************
         #'* Is it a bit level and N or B file?
-        if (self.parsedResult.BitNumber != None and self.parsedResult.BitNumber >= 0 and self.parsedResult.BitNumber < 16):
-
-            BitResult = [' ' * (numberOfElements - 1)]
+        if (self.parsedResult.BitNumber != None and int(self.parsedResult.BitNumber) >= 0 and int (self.parsedResult.BitNumber) < 16):
+            BitResult = [' ' * (_length - 1)]
             BitPos = self.parsedResult.BitNumber
             WordPos = 0
             #'* Set array of consectutive bits
-            for i in range(len(numberOfElements - 1)):
-                BitResult[i] = bool(result[WordPos] and 2 ^ BitPos)
-                BitPos += 1
-                if (BitPos > 15):
-                    BitPos = 0
-                    WordPos = 1 + WordPos 
+            #for i in range((2 - 1)):
+            BitResult = bool(result[WordPos] and 2 ^ BitPos)
+            #    BitPos += 1
+            #    if (BitPos > 15):
+            #        BitPos = 0
+            #        WordPos = 1 + WordPos 
+            print ("bit result", BitResult)
             return BitResult
         if (_debug):
             print("<<Leaving CIPClient::ExtractRegister()")
