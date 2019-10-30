@@ -144,16 +144,6 @@ class ParsedDataAddress():
             
             if (self.FileType != -20):
                 self.FileType = self.FileType.upper()
-                #print("filetype: ", self.FileType)                          
-            #if (self.FileNumber != -20):
-                #print("filenumber: ", self.FileNumber)
-            #if (self.ElementNumber != -20):
-                #print("elementnumber", self.ElementNumber)
-           # if (self.BitNumber != -20 and self.BitNumber != None):    
-                #print("bitnumber", self.BitNumber)                          
-            #if (self.SubElement != -20):
-               # print("subelement", self.SubElement)
-            #print ()
 
             if (int(self.ElementNumber) < 256):
                 self.BytesPerElement = 2
@@ -215,6 +205,8 @@ class CIPClient(asyncore.dispatcher_with_send):
         self.ArrayElements = 0
         self.parsedResult = 0
         self.waiting = False
+        self.numberOfElements = 0
+        
         if (_debug):
             print ("<<Leaving CIPClient::__init__()")
         
@@ -464,11 +456,11 @@ class CIPClient(asyncore.dispatcher_with_send):
     def ExtractRegister(self,data):
         if (_debug):
             print(">>Entering CIPClient::ExtractRegister(", data, ")")
-        result = []
+        if (self.parsedResult.FileType == 0x85): result = [' ']
+        else: result = []
         StringLength = 0
         dataByteArray = array.array('B',data).tostring()
 
-	
         if (self.parsedResult.FileType == 0x8A): 			#'* Flooating point read (&H8A)
             for ff in range (0,_length):
                 result.append(struct.unpack_from('f',dataByteArray,ff*4)[0])
@@ -501,29 +493,33 @@ class CIPClient(asyncore.dispatcher_with_send):
                     else:
                         j = i * 2
                     result[i] = int(data[j])
-        elif (self.parsedResult.FileType == 0x85):
-            print ("book", dataByteArray)
+
         else:
-            result = 0
-            print ("Exception in ExtractRegister()")
+            if (self.ArrayElements <= 1 ):
+                self.ArrayElements = 1
+            for i in range((self.ArrayElements)):
+                try:
+                    result[i] = int(data[i * 2])
+                except:
+                    print ("Exception in ExtractRegister()")
 
         #'******************************************************************************
         #'* If the number of words to read is not specified, then return a single value
         #'******************************************************************************
         #'* Is it a bit level and N or B file?
         if (self.parsedResult.BitNumber != None and int(self.parsedResult.BitNumber) >= 0 and int (self.parsedResult.BitNumber) < 16):
-            BitResult = [' ' * (_length - 1)]
+            BitResult = [' ']
             BitPos = self.parsedResult.BitNumber
             WordPos = 0
             #'* Set array of consectutive bits
-            #for i in range((2 - 1)):
-            BitResult = bool(result[WordPos] and 2 ^ BitPos)
+            #for i in range(len(numberOfElements - 1)):
+            BitResult = bool(result[WordPos] & 2 ** int(BitPos))
             #    BitPos += 1
             #    if (BitPos > 15):
             #        BitPos = 0
             #        WordPos = 1 + WordPos 
-            print ("bit result", BitResult)
             return BitResult
+            
         if (_debug):
             print("<<Leaving CIPClient::ExtractRegister()")
         return result
@@ -1061,8 +1057,12 @@ def readFromSLC(IP):
         print('...reading from ' + _address)
     asyncore.loop()
     if (_read):
-        print(str(client.value[0]))
-        return(str(client.value[0]))
+        if client.parsedResult.FileType == 0x85:
+            print(str(client.value))
+            return(str(client.value))
+        else:
+            print(str(client.value[0]))
+            return(str(client.value[0]))           
         time.sleep(.11)
     if (_debug or _verbose):
         print("...closing")
